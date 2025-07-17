@@ -1,0 +1,19 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: llm-faq
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: llm-faq
+  template:
+    metadata:
+      labels:
+        app: llm-faq
+    spec:
+      containers:
+      - name: llm-faq
+        image: yourdockerhub/llm-faq-bot:latest
+        ports:
+        - containerPort: 8000

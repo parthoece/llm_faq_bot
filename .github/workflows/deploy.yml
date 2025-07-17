@@ -1,0 +1,23 @@
+name: Deploy
+
+on:
+  push:
+    branches: [main]
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Build Docker image
+        run: docker build -t llm-faq-bot .
+
+      - name: Push to Docker Hub
+        run: echo "${{ secrets.DOCKER_PASSWORD }}" | docker login -u "${{ secrets.DOCKER_USERNAME }}" --password-stdin &&
+             docker tag llm-faq-bot ${{ secrets.DOCKER_USERNAME }}/llm-faq-bot:latest &&
+             docker push ${{ secrets.DOCKER_USERNAME }}/llm-faq-bot:latest
+
+      - name: Deploy to EC2
+        run: ssh -o StrictHostKeyChecking=no ec2-user@${{ secrets.EC2_IP }} "kubectl rollout restart deployment/llm-faq"
